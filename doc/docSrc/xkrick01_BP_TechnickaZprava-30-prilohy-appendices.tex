@@ -1,0 +1,340 @@
+\chapter{Komponenty navrženého gramatického systému} \label{priloha:Komponenty}
+Tato příloha prezentuje konkrétní hodnoty množin \emph{terminálů}, \emph{neterminálů} a \emph{gramatických pravidel} jednotlivých komponent gramatického systému
+$$\Gamma_{cpp} = (N, T, S, G_1, G_2, G_3, G_4)$$
+definovaného v podkapitole \ref{NadpisDefiniceGSCpp}. Kromě zmíněných množin se ke komponentám vážou také jejich \emph{tabulky analýzy}, které je možné nalézt
+v přiloženém paměťovém médiu, viz \ref{priloha:ObsahPametovehoMedia} (ve složce  \texttt{doc/others/parsingTables}).
+
+
+
+
+
+\section{Komponenta $\text{G}_\text{1}$ -- Tělo programu} \label{priloha:LLbody}
+LL tabulka syntaktické analýzy komponenty $G_1$ je přiložena na paměťovém médiu, viz soubor \texttt{doc/others/parsingTables/LLBodyParsingTable.pdf.}
+Úplná definice komponenty $G_1$ je následující.
+$$G_1 = (N_1, T_1, S_1, P_1, \pi_1, \rho_1, f_1)\text{ je typu } (a, l),$$ kde
+\begin{itemize}
+    \item \leavevmode\vspace{-0.85cm}
+    \begin{flalign*}
+     N_1 = \{       & \text{<prog\_main>, <construct\_block>, <construct\_cont>, <construct>, } &\\
+                   & \text{<element>, <var\_def>, <assign>, <value>, <define>, <if\_cont>, } &\\
+                   & \text{<else\_if\_cont>, <func\_dtype>, <params>, <params\_cont>, <dtype>} \quad\},&
+    \end{flalign*}
+    \item \leavevmode\vspace{-0.85cm}
+    \begin{flalign*}
+        T_1 = \{ & \textbf{eol},\ \textbf{;},\ \textbf{(},\ \textbf{)},\ \textbf{\{},\ \textbf{\}},\ \textbf{eof},\ \textbf{if},\ \textbf{switch},\ \textbf{while},\ \textbf{do},\ \textbf{for},\ \textbf{return},\ \textbf{break},\ \textbf{continue}, &\\
+              & \textbf{case},\ \textbf{default},\ \textbf{:},\ \textbf{=},\ \textbf{\#define},\ \textbf{else},\ \textbf{void},\ \textbf{,},\ \textbf{int},\ \textbf{float},\ \textbf{double},\ \textbf{char},&\\
+              & \textbf{string},\ \textbf{bool},\ \textbf{id} \quad\}, &
+    \end{flalign*}
+    \item $S_1 = \text{<prog\_main>}$,
+    \item $\pi_1$ není specifikován, jelikož je predikátem typu $(a)$,
+    \item $\rho_1 = (\{AS, S'\})$,
+    \item $f_1 = t$,
+    \item $P_1 = \{$
+\end{itemize}
+
+\begin{enumerate}[label={\arabic*:}]
+    \item <prog\_main> $\longrightarrow$ <define> \textbf{eol} <prog\_main> ,
+    \item <prog\_main> $\longrightarrow$ <var\_def> \textbf{;} <prog\_main> ,
+    \item <prog\_main> $\longrightarrow$ <func\_dtype> \textbf{id} \textbf{(} <params> \textbf{)} <construct\_block> <prog\_main>,
+    \item <prog\_main> $\longrightarrow$ \textbf{eof} ,
+    \item <construct\_block> $\longrightarrow$ \textbf{\{} <construct\_cont> \textbf{\}} ,
+
+    \item <construct\_cont> $\longrightarrow$  <construct> <construct\_cont> ,
+    \item <construct\_cont> $\longrightarrow$  $\mathbf{ \epsilon }$ ,
+    \item <construct> $\longrightarrow$ \textbf{if} \textbf{(} <element> \textbf{)} <construct\_block> <if\_cont> ,
+    \item <construct> $\longrightarrow$ \textbf{switch} \textbf{(} <element> \textbf{)} <construct\_block> ,
+    \item <construct> $\longrightarrow$ \textbf{while} \textbf{(} <element> \textbf{)} <construct\_block> ,
+    \item <construct> $\longrightarrow$ \textbf{do} <construct\_block> \textbf{while} \textbf{(} <value> \textbf{)} \textbf{;} ,
+    \item <construct> $\longrightarrow$ \textbf{for} \textbf{(} <element> \textbf{;} <value> \textbf{;} <value> \textbf{)} <construct\_block> ,
+    \item <construct> $\longrightarrow$ \textbf{return} <value> \textbf{;} ,
+    \item <construct> $\longrightarrow$ \textbf{break} \textbf{;} ,
+    \item <construct> $\longrightarrow$ \textbf{continue} \textbf{;} ,
+    \item <construct> $\longrightarrow$ \textbf{case} \emph{S'} \textbf{;} ,
+    \item <construct> $\longrightarrow$ \textbf{default} \textbf{;} ,
+    \item <construct> $\longrightarrow$ <define> \textbf{eol} ,
+    \item <construct> $\longrightarrow$ <element> \textbf{;} ,
+
+    \item <element> $\longrightarrow$ <var\_def> ,
+    \item <element> $\longrightarrow$ <value> ,
+
+    \item <var\_def> $\longrightarrow$ <dtype> \textbf{id} <assign> ,
+    \item <assign> $\longrightarrow$ \textbf{=} \emph{S'} ,
+    \item <assign> $\longrightarrow$ $\mathbf{ \epsilon }$ ,
+    \item <value> $\longrightarrow$ \emph{AS} ,
+    \item <value> $\longrightarrow$ $\mathbf{ \epsilon }$ ,
+
+    \item <define> $\longrightarrow$ \textbf{\#define} \textbf{id} \emph{S'} ,
+
+    \item <if\_cont> $\longrightarrow$ \textbf{else} <else\_if\_cont> ,
+    \item <if\_cont> $\longrightarrow$ $\mathbf{ \epsilon }$ ,
+    \item <else\_if\_cont> $\longrightarrow$ \textbf{if} \textbf{(} <element> \textbf{)} <construct\_block> <if\_cont> ,
+    \item <else\_if\_cont> $\longrightarrow$ <construct\_block> ,
+
+    \item <func\_dtype> $\longrightarrow$ \textbf{void} ,
+    \item <func\_dtype> $\longrightarrow$ <dtype> ,
+
+    \item <params> $\longrightarrow$ <var\_def> <params\_cont> ,
+    \item <params> $\longrightarrow$ $\mathbf{ \epsilon }$ ,
+    \item <params\_cont> $\longrightarrow$ \textbf{,} <var\_def> <params\_cont> ,
+    \item <params\_cont> $\longrightarrow$ $\mathbf{ \epsilon }$ ,
+
+    \item <dtype> $\longrightarrow$ \textbf{int} ,
+    \item <dtype> $\longrightarrow$ \textbf{float} ,
+    \item <dtype> $\longrightarrow$ \textbf{double} ,
+    \item <dtype> $\longrightarrow$ \textbf{char} ,
+    \item <dtype> $\longrightarrow$ \textbf{string} ,
+    \item <dtype> $\longrightarrow$ \textbf{bool}\quad\}
+\end{enumerate}
+
+
+
+\section{Komponenta $\text{G}_\text{2}$ -- Výrazy s přiřazením} \label{priloha:Precedence}
+Precedenční tabulka syntaktické analýzy komponenty $G_2$ je přiložena na paměťovém médiu, viz soubor \texttt{doc/others/parsingTables/PrecedenceParsingTable.pdf.}
+Úplná definice komponenty $G_2$ je následující.
+$$G_2 = (N_2, T_2, S_2, P_2, \pi_2, \rho_2, f_2)\text{ je typu } (l, s),$$ kde
+\begin{itemize}
+    \item \leavevmode\vspace{-0.85cm}
+    \begin{flalign*}
+        N_2 = \{ & \emph{AS},\ \emph{EXP}  \quad\},&
+    \end{flalign*}
+    \item \leavevmode\vspace{-0.85cm}
+    \begin{flalign*}
+        T_2 = \{  & \textbf{=},\ \textbf{+=},\ \textbf{--=},\ \textbf{*=},\ \textbf{/=},\ \textbf{\%=},\ \textbf{||},\ \textbf{\&\&},\ \textbf{==},\ \textbf{!=},\ \textbf{>},\ \textbf{<},\ \textbf{<=},\ \textbf{>=},\ \textbf{+},\ \textbf{--},&\\
+              & \textbf{*},\ \textbf{/},\ \textbf{\%},\ \textbf{i++},\ \textbf{i--\,--},\ \textbf{!},\ \textbf{++i},\ \textbf{--\,--i},\ \textbf{const\_int},\ \textbf{const\_float},\ \textbf{const\_double},&\\
+              & \textbf{const\_char},\ \textbf{const\_string},\ \textbf{const\_true},\ \textbf{const\_false},&\\
+              & \textbf{id},\ \textbf{(},\ \textbf{)} \quad\}, &
+    \end{flalign*}
+    \item $S_2 = AS$,
+    \item $\pi_2 = (\{AS\})$,
+    \item $\rho_2 = (\textbf{ id} \textbf{ ( })$,
+    \item $f_2 = t$,
+    \item $P_2 = \{$
+\end{itemize}
+
+\begin{enumerate}[label={\arabic*:}]
+    \item \emph{AS} $\longrightarrow$ \textbf{id} \textbf{=} \emph{EXP} ,
+    \item \emph{AS} $\longrightarrow$ \textbf{id} \textbf{+=} \emph{EXP} ,
+    \item \emph{AS} $\longrightarrow$ \textbf{id} \textbf{--=} \emph{EXP} ,
+    \item \emph{AS} $\longrightarrow$ \textbf{id} \textbf{*=} \emph{EXP} ,
+    \item \emph{AS} $\longrightarrow$ \textbf{id} \textbf{/=} \emph{EXP} ,
+    \item \emph{AS} $\longrightarrow$ \textbf{id} \textbf{\%=} \emph{EXP} ,
+    \item \emph{AS} $\longrightarrow$ \emph{EXP} ,
+    \item \emph{EXP} $\longrightarrow$ \emph{EXP} \textbf{||} \emph{EXP} ,
+    \item \emph{EXP} $\longrightarrow$ \emph{EXP} \textbf{\&\&} \emph{EXP} ,
+    \item \emph{EXP} $\longrightarrow$ \emph{EXP} \textbf{==} \emph{EXP} ,
+    \item \emph{EXP} $\longrightarrow$ \emph{EXP} \textbf{!=} \emph{EXP} ,
+    \item \emph{EXP} $\longrightarrow$ \emph{EXP} \textbf{>} \emph{EXP} ,
+    \item \emph{EXP} $\longrightarrow$ \emph{EXP} \textbf{<} \emph{EXP} ,
+    \item \emph{EXP} $\longrightarrow$ \emph{EXP} \textbf{<=} \emph{EXP} ,
+    \item \emph{EXP} $\longrightarrow$ \emph{EXP} \textbf{>=} \emph{EXP} ,
+    \item \emph{EXP} $\longrightarrow$ \emph{EXP} \textbf{+} \emph{EXP} ,
+    \item \emph{EXP} $\longrightarrow$ \emph{EXP} \textbf{--} \emph{EXP} ,
+    \item \emph{EXP} $\longrightarrow$ \emph{EXP} \textbf{*} \emph{EXP} ,
+    \item \emph{EXP} $\longrightarrow$ \emph{EXP} \textbf{/} \emph{EXP} ,
+    \item \emph{EXP} $\longrightarrow$ \emph{EXP} \textbf{\%} \emph{EXP} ,
+    \item \emph{EXP} $\longrightarrow$ \emph{EXP} \textbf{i++} ,
+    \item \emph{EXP} $\longrightarrow$ \emph{EXP} \textbf{i--\,--} ,
+    \item \emph{EXP} $\longrightarrow$ \textbf{!} \emph{EXP} ,
+    \item \emph{EXP} $\longrightarrow$ \textbf{++i} \emph{EXP} ,
+    \item \emph{EXP} $\longrightarrow$ \textbf{--\,--i} \emph{EXP} ,
+    \item \emph{EXP} $\longrightarrow$ \textbf{const\_int} ,
+    \item \emph{EXP} $\longrightarrow$ \textbf{const\_float} ,
+    \item \emph{EXP} $\longrightarrow$ \textbf{const\_double} ,
+    \item \emph{EXP} $\longrightarrow$ \textbf{const\_char} ,
+    \item \emph{EXP} $\longrightarrow$ \textbf{const\_string} ,
+    \item \emph{EXP} $\longrightarrow$ \textbf{const\_true} ,
+    \item \emph{EXP} $\longrightarrow$ \textbf{const\_false} ,
+    \item \emph{EXP} $\longrightarrow$ \textbf{id} ,
+    \item \emph{EXP} $\longrightarrow$ \textbf{(} \emph{AS} \textbf{)} ,
+    \item \emph{EXP} $\longrightarrow$ \textbf{(} \emph{EXP} \textbf{)}\quad\}
+\end{enumerate}
+
+
+\section{Komponenta $\text{G}_\text{3}$ -- Výrazy bez přiřazení} \label{priloha:SLR}
+SLR tabulka syntaktické analýzy komponenty $G_3$ je přiložená na paměťovém médiu, viz soubor \texttt{doc/others/parsingTables/SLRParsingTable.pdf.}
+Úplná definice komponenty $G_3$ je následující.
+$$G_3 = (N_3, T_3, S_3, P_3, \pi_3, \rho_3, f_3)\text{ je typu } (l, s),$$ kde
+\begin{itemize}
+    \item \leavevmode\vspace{-0.85cm}
+    \begin{flalign*}
+        N_3  = \{ & \emph{S’},\ \emph{O},\ \emph{A},\ \emph{C1},\ \emph{C2},\ \emph{E},\ \emph{T},\ \emph{N},\ \emph{P},\ \emph{I},\ \emph{D}  \quad\},&
+    \end{flalign*}
+    \item \leavevmode\vspace{-0.85cm}
+    \begin{flalign*}
+        T_3 = \{  & \textbf{||},\ \textbf{\&\&},\ \textbf{==},\ \textbf{!=},\ \textbf{>},\ \textbf{<},\ \textbf{<=},\ \textbf{>=},\ \textbf{+},\ \textbf{--},\ \textbf{*},\ \textbf{/},\ \textbf{\%},\ \textbf{i++},\ \textbf{i--\,--}, &\\
+              & \textbf{!},\ \textbf{++i},\ \textbf{--\,--i},\ \textbf{const\_int},\ \textbf{const\_float},\ \textbf{const\_double},\ \textbf{const\_char},&\\
+              & \textbf{const\_string},\ \textbf{const\_true},\ \textbf{const\_false},\ \textbf{id},\ \textbf{(},\ \textbf{)} \quad\}, &
+    \end{flalign*}
+    \item $S_3 = S'$,
+  \item $\pi_3 = (\{S'\})$,
+  \item $\rho_3 = (\textbf{ id} \textbf{ ( })$,
+  \item $f_3 = t$,
+    \item $P_3 = \{$
+\end{itemize}
+
+\begin{enumerate}[label={\arabic*:}]
+    \setcounter{enumi}{-1}
+    \item \emph{S’} $\longrightarrow$ \emph{O} ,
+    \item \emph{O} $\longrightarrow$ \emph{O} \textbf{||} \emph{A} ,
+    \item \emph{O} $\longrightarrow$ \emph{A} ,
+    \item \emph{A} $\longrightarrow$ \emph{A} \textbf{\&\&} \emph{C1} ,
+    \item \emph{A} $\longrightarrow$ \emph{C1} ,
+    \item \emph{C1} $\longrightarrow$ \emph{C1} \textbf{==} \emph{C2} ,
+    \item \emph{C1} $\longrightarrow$ \emph{C1} \textbf{!=} \emph{C2} ,
+    \item \emph{C1} $\longrightarrow$ \emph{C2} ,
+    \item \emph{C2} $\longrightarrow$ \emph{C2} \textbf{>} \emph{E} ,
+    \item \emph{C2} $\longrightarrow$ \emph{C2} \textbf{<} \emph{E} ,
+    \item \emph{C2} $\longrightarrow$ \emph{C2} \textbf{<=} \emph{E} ,
+    \item \emph{C2} $\longrightarrow$ \emph{C2} \textbf{>=} \emph{E} ,
+    \item \emph{C2} $\longrightarrow$ \emph{E} ,
+    \item \emph{E} $\longrightarrow$ \emph{E} \textbf{+} \emph{T} ,
+    \item \emph{E} $\longrightarrow$ \emph{E} \textbf{--} \emph{T} ,
+    \item \emph{E} $\longrightarrow$ \emph{T} ,
+    \item \emph{T} $\longrightarrow$ \emph{T} \textbf{*} \emph{N} ,
+    \item \emph{T} $\longrightarrow$ \emph{T} \textbf{/} \emph{N} ,
+    \item \emph{T} $\longrightarrow$ \emph{T} \textbf{\%} \emph{N} ,
+    \item \emph{T} $\longrightarrow$ \emph{N} ,
+    \item \emph{N} $\longrightarrow$ \textbf{++i} \emph{D} ,
+    \item \emph{N} $\longrightarrow$ \textbf{--\,--i} \emph{D} ,
+    \item \emph{N} $\longrightarrow$ \textbf{!} \emph{N} ,
+    \item \emph{N} $\longrightarrow$ \emph{P} ,
+    \item \emph{P} $\longrightarrow$ \emph{D} \textbf{i++} ,
+    \item \emph{P} $\longrightarrow$ \emph{D} \textbf{i--\,--} ,
+    \item \emph{P} $\longrightarrow$ \emph{I} ,
+    \item \emph{I} $\longrightarrow$ \textbf{const\_int} ,
+    \item \emph{I} $\longrightarrow$ \textbf{const\_float} ,
+    \item \emph{I} $\longrightarrow$ \textbf{const\_double} ,
+    \item \emph{I} $\longrightarrow$ \textbf{const\_char} ,
+    \item \emph{I} $\longrightarrow$ \textbf{const\_string} ,
+    \item \emph{I} $\longrightarrow$ \textbf{const\_true} ,
+    \item \emph{I} $\longrightarrow$ \textbf{const\_false} ,
+    \item \emph{I} $\longrightarrow$ \textbf{(} \emph{O} \textbf{)} ,
+    \item \emph{I} $\longrightarrow$ \emph{D} ,
+    \item \emph{D} $\longrightarrow$ \textbf{id}\quad\}
+\end{enumerate}
+
+\section{Komponenta $\text{G}_\text{4}$ -- Volání funkce} \label{priloha:LLFunc}
+LL tabulka syntaktické analýzy komponenty $G_4$ je přiložená na paměťovém médiu, viz soubor \texttt{doc/others/parsingTables/LLFuncParsingTable.pdf.}
+Úplná definice komponenty $G_4$ je následující.
+$$G_4 = (N_4, T_4, S_4, P_4, \pi_4, \rho_4, f_4)\text{ je typu } (s, l),$$ kde
+\begin{itemize}
+    \item \leavevmode\vspace{-0.85cm}
+    \begin{flalign*}
+        N_4 = \{  & \text{<function\_call>, <args>, <args\_cont> }  \quad\},&
+    \end{flalign*}
+    \item \leavevmode\vspace{-0.85cm}
+    \begin{flalign*}
+        T_4 = \{  & \textbf{id},\ \textbf{(},\ \textbf{)},\ \textbf{,} \quad\}, &
+    \end{flalign*}
+    \item $S_4 = \text{<function\_call>}$,
+  \item $\pi_4 =  (\textbf{ id} \textbf{ ( })$,
+  \item $\rho_4 = (\{AS\})$,
+  \item $f_4 = t$,
+    \item $P_4 = \{$
+\end{itemize}
+
+\begin{enumerate}[label={\arabic*:}]
+    \item <function\_call> $\longrightarrow$ \textbf{id} \textbf{(} <args> \textbf{)} ,
+    \item <args> $\longrightarrow$ \emph{AS} <args\_cont> ,
+    \item <args> $\longrightarrow$ $\mathbf{ \epsilon }$ ,
+    \item <args\_cont> $\longrightarrow$ \textbf{,} \emph{AS} <args\_cont> ,
+    \item <args\_cont> $\longrightarrow$ $\mathbf{ \epsilon }$\quad\}
+\end{enumerate}
+
+
+\chapter{Struktura zdrojových souborů .NET projektu} \label{priloha:StrukturaProgramu}
+Adresářová struktura .NET projektu \verb|GrammarSystemSA|, jenž implementuje veškerou funkcionalitu lexikálního i syntaktického analyzátoru, má následující podobu:
+\begin{itemize}
+    \item \verb|Common/|
+    \begin{itemize}
+        \item \verb|Constants.cs|
+        \item \verb|Nonterminals.cs|
+        \item \verb|ParsingTableAction.cs|
+        \item \verb|PushDownType.cs|
+        \item \verb|ScannerState.cs|
+        \item \verb|Terminal.cs|
+        \item \verb|TerminalNonterminal.cs|
+    \end{itemize}
+    \item \verb|Components/|
+    \begin{itemize}
+        \item \verb|Component.cs|
+        \item \verb|LLComponent.cs|
+        \item \verb|PrecedenceComponent.cs|
+        \item \verb|SLRComponent.cs|
+    \end{itemize}
+    \item \verb|Grammars/|
+    \begin{itemize}
+        \item \verb|GrammarRule.cs|
+        \item \verb|GrammarSetsData.cs|
+    \end{itemize}
+    \item \verb|Lexical/|
+    \begin{itemize}
+        \item \verb|Scanner.cs|
+        \item \verb|Token.cs|
+    \end{itemize}
+    \item \verb|Mappers/|
+    \begin{itemize}
+        \item \verb|KeywordTokenMapper.cs|
+        \item \verb|LLBodyNontermIndexMapper.cs|
+        \item \verb|LLBodyTermIndexMapper.cs|
+        \item \verb|LLFunctionNontermIndexMapper.cs|
+        \item \verb|LLFunctionTermIndexMapper.cs|
+        \item \verb|PrecedenceTermIndexMapper.cs|
+        \item \verb|SLRNonTermIndexMapper.cs|
+    \end{itemize}
+    \item \verb|Parsers/|
+    \begin{itemize}
+        \item \verb|BottomUpParser.cs|
+        \item \verb|LLParser.cs|
+        \item \verb|Parser.cs|
+        \item \verb|ParsingStats.cs|
+        \item \verb|PrecedenceParser.cs|
+        \item \verb|SLRParser.cs|
+        \item \verb|SLRPushdownItem.cs|
+    \end{itemize}
+    \item \verb|Tables/|
+    \begin{itemize}
+        \item \verb|LLParsingTable.cs|
+        \item \verb|ParsingTable.cs|
+        \item \verb|PrecedenceParsingTable.cs|
+        \item \verb|SLRParsingTable.cs|
+        \item \verb|SLRTableCell.cs|
+    \end{itemize}
+    \item \verb|Program.cs|
+\end{itemize}
+
+
+\chapter{Obsah přiloženého paměťového média} \label{priloha:ObsahPametovehoMedia}
+Obsah přiloženého paměťového média je tvořen následujícími adresáři a soubory:
+\begin{itemize}
+    \item \verb|app/| -- adresář obsahující spustitelné soubory a soubory nezbytné pro spuštění
+    \begin{itemize}
+        \item \verb|Linux/| -- adresář se spustitelnou aplikací pro linuxové distribuce
+        \begin{itemize}[label=$\circ$]
+            \item \verb|ExampleInputFiles/| -- adresář s ukázkovými vstupními soubory aplikace
+            \item \texttt{TablesData/} -- adresář s CSV soubory, které obsahují data tabulek analýzy
+            \item \verb|GrammarSystemSA| -- spustitelný soubor aplikace
+        \end{itemize}
+        \item \verb|Windows/| -- adresář se spustitelnou aplikací pro platformu Windows
+        \begin{itemize}[label=$\circ$]
+            \item \verb|ExampleInputFiles/| -- adresář s ukázkovými vstupními soubory aplikace
+            \item \texttt{TablesData/} -- adresář s CSV soubory, které obsahují data tabulek analýzy
+            \item \verb|GrammarSystemSA.exe| -- spustitelný soubor aplikace
+        \end{itemize}
+    \end{itemize}
+    \item \verb|doc/| -- adresář technické zprávy
+    \begin{itemize}
+        \item \verb|docSrc/| -- adresář obsahující zdrojové soubory technické zprávy
+        \item \verb|others/| -- adresář obsahující schémata a tabulky využité pro řešení práce
+        \item \verb|xkrick01_BP_TechnickaZprava.pdf| -- PDF soubor technické zprávy
+    \end{itemize}
+    \item \verb|src/| -- adresář aplikace
+    \begin{itemize}
+        \item \verb|GrammarSystemSA/| -- projekt implementující zdrojové soubory aplikace
+        \item \verb|GrammarSystemSA.Tests/| -- projekt s xUnit testy k aplikaci
+        \item \verb|InputTestingPrograms/| -- adresář se vstupními soubory pro testování
+        \item \verb|TablesData/| -- adresář s CSV soubory, které obsahují data tabulek analýzy
+        \item \verb|GrammarSystemSA.sln| -- řešení (solution) .NET aplikace
+    \end{itemize}
+    \item \verb|README.md|
+\end{itemize}

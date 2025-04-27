@@ -1,0 +1,5 @@
+int idFunc(){
+    for ( ; ){
+        
+    }
+}
